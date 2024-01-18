@@ -20,3 +20,14 @@ model Session {
   accessToken String
   userId      BigInt?
 }
+
+model Comment {
+  id        String  @id @default(uuid())
+  title     String
+  blogId    String
+  commentId String?
+  name      String
+  email     String
+  comment   String
+  status    String
+}
