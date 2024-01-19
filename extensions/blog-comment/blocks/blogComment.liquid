@@ -1,0 +1,365 @@
+<style>
+  .blogContent {
+    max-width: 70%;
+    margin: 20px auto 0;
+    background: #f3f3f3;
+    padding: 20px;
+    border-radius: 10px;
+  }
+  .blogContent h2 {
+    font-size: 30px;
+    font-weight: 600;
+    color: #3b1408;
+    padding: 0;
+    margin: 0;
+    line-height: 1;
+  }
+  .blogContent h2 {
+    font-size: 18px;
+    color: #3b1408;
+  }
+  .blogContent input,
+  .blogContent textarea {
+    width: 100%;
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #3b1408;
+  }
+  .inputField {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  .blogSubmit button {
+    padding: 15px 25px;
+    background: #ea5329;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    margin-top: 15px;
+  }
+  .comentList,
+  .comentListChild {
+    display: flex;
+    gap: 10px;
+    align-items: start;
+  }
+  .comentListChild {
+    padding-left: 50px;
+    margin: 20px 0;
+  }
+  .titleComnetButton {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .replyButton img {
+    width: 12px;
+  }
+  .replyButton {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+  }
+  .replyButton a {
+    font-size: 13px;
+    text-decoration: none;
+    color: #3b1408;
+  }
+  .commentBox {
+    margin: 30px 0;
+  }
+  .commnetContent {
+    width: 100%;
+  }
+  .successMessage {
+    text-align: center;
+  }
+</style>
+
+
+<div class="blogContent">
+  <form id="commentForm">
+    <div class="">
+      <h2 class="">{{ article.comments_count }} Comments</h2>
+
+      <div id="responseData" class="commentBox">
+        {% comment %} <div class="comentList">
+          <div class="commnetImage">
+            <img
+              loading="lazy"
+              width="40"
+              height="40"
+              src="https://www.gravatar.com/avatar/{{ comment.email | md5 }}"
+              alt="image"
+              class="">
+          </div>
+          <div class="commnetContent">
+            <div class="titleComnetButton">
+              <h2 class="authorName">{{ comment.author }}</h2>
+              <div class="replyButton">
+                <img
+                  loading="lazy"
+                  width="30"
+                  height="30"
+                  src="{{ 'reply.svg' | asset_url }}"
+                  alt="">
+                <a
+                  href="#commentForm"
+                  onclick="getCommentId({{ comment.id }})"
+                  class="">Reply</a>
+              </div>
+            </div>
+            <span class="commentDate">
+              {{- comment.created_at | date: '%a, %b %d, %Y' -}}
+            </span>
+            <span class="commnetDescription">{{ comment.content }}</span>
+          </div>
+        </div>
+
+        <div class="comentListChild">
+          <div class="commnetImage">
+            <img
+              loading="lazy"
+              width="40"
+              height="40"
+              src="https://www.gravatar.com/avatar/{{ comment.email | md5 }}"
+              alt="image"
+              class="">
+          </div>
+          <div class="commnetContent">
+            <div class="titleComnetButton">
+              <h2 class="authorName">{{ comment.author }}</h2>
+              <div class="replyButton">
+                <img
+                  loading="lazy"
+                  width="30"
+                  height="30"
+                  src="{{ 'reply.svg' | asset_url }}"
+                  alt="">
+                <a
+                  href="#commentForm"
+                  onclick="getCommentId({{ comment.id }})"
+                  class="">Reply</a>
+              </div>
+            </div>
+            <span class="commentDate">
+              {{- comment.created_at | date: '%a, %b %d, %Y' -}}
+            </span>
+            <span class="commnetDescription">{{ comment.content }}</span>
+          </div>
+        </div> {% endcomment %}
+      </div>
+
+      <div class="" id="commentForm">
+        <h2 class="">{{ block.settings.leavComment }}</h2>
+        <p class="content">{{ block.settings.inputDescription }}</p>
+
+        <div class="">
+          <div class="inputField">
+            <input
+              type="hidden"
+              id="blogId"
+              value="{{ article.id }}">
+            <input
+              type="hidden"
+              id="commentId"
+              value="">
+            <input
+              type="hidden"
+              id="title"
+              value="{{ article.title }}">
+            <input
+              class=""
+              id="name"
+              type="text"
+              name="comment[author]"
+              placeholder="Name*">
+            <input
+              class=""
+              type="email"
+              id="email"
+              name="comment[email]"
+              placeholder="Email*">
+          </div>
+          <div class="pb-3">
+            <textarea
+              name="comment[body]"
+              id="comment"
+              cols="30"
+              rows="10"
+              placeholder="Comment"
+              class=""></textarea>
+          </div>
+
+          <div class="successMessage" id="successMessage"></div>
+
+          <div class="blogSubmit">
+            <button
+              type="submit"
+              class=""
+              id="commentButton">
+              Post Comment
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+
+
+<script>
+
+   
+        // Set up a recurring loop to fetch data every 3 seconds
+        setTimeout(fetchData, 3000);
+
+        function fetchData() {
+            // Define the API endpoint
+            var blogIds = document.getElementById('blogId').value;
+            console.log("================", blogIds)
+
+            var apiUrl = 'http://localhost:3000/api/getComments';
+
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    blogId: blogIds
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+
+                // Handle the response data and display it in the responseData div
+                displayComments(data.data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Handle errors
+            });
+        }
+
+        function dateTime(date){
+          const inputDateString = date ? date : new Date();
+          const inputDate = new Date(inputDateString);
+
+          const day = String(inputDate.getDate()).padStart(2, '0');
+          const month = String(inputDate.getMonth() + 1).padStart(2, '0'); // Month is zero-based
+          const year = inputDate.getFullYear();
+
+          const formattedDate = `${day}/${month}/${year}`;
+
+          console.log(formattedDate); // Output: 19/01/2024
+          return formattedDate;
+        }
+
+        function displayComments(comments) {
+
+            function getParentId(id) {
+            var inputElement = document.getElementById('commentId');
+              inputElement.value = id;
+           }
+            var responseDataDiv = document.getElementById('responseData');
+            // Clear existing content before appending new comments
+            responseDataDiv.innerHTML = '';
+
+            // Iterate through the comments and create HTML elements
+
+           
+             comments.forEach(comment => {
+              document.getElementById("responseData").innerHTML += '<div class="comentList"><div class="commnetContent"><div class="titleComnetButton"><h2 class="authorName">'+comment?.name+'</h2><div class="replyButton"><a href="#commentForm" onclick="getCommentId(\''+comment._id+'\')" class="">Reply</a></div></div><span class="commentDate">'+dateTime(comment?.createdAt)+'</span><span class="commnetDescription">'+comment?.comment+'</span></div></div>'
+            });
+        }
+    </script>
+
+
+{% comment %} Create Comment######################## {% endcomment %}
+<script>
+
+  function getCommentId(id) {
+      var inputElement = document.getElementById('commentId');
+        inputElement.value = id;
+    }
+
+  document.getElementById('commentForm').addEventListener('submit', function (event) {
+    // Prevent the default form submission
+    event.preventDefault();
+
+    // Disable the button to prevent multiple submissions
+    // document.getElementById('commentButton').disabled = true;
+
+    // document.getElementById('commentButton').addEventListener('click', sendData);
+
+    // function sendData() {
+      // Get the data from the input field
+      var name = document.getElementById('name').value;
+      var email = document.getElementById('email').value;
+      var comment = document.getElementById('comment').value;
+      var blogId = document.getElementById('blogId').value;
+      var parentId = document.getElementById('commentId').value;
+      var title = document.getElementById('title').value;
+
+      // Define the API endpoint
+      var apiUrl = 'http://localhost:3000/api/createComment';
+
+      // Make a POST request using the fetch API
+      fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json', // Specify the content type
+        },
+        body: JSON.stringify({
+          name: name,
+          email: email,
+          comment: comment,
+          parentId: parentId,
+          blogId: blogId,
+          title: title
+        }), // Convert data to JSON format
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Success:', data);
+          // Handle the response data as needed
+          var successMessageContainer = document.getElementById('successMessage');
+            successMessageContainer.innerHTML = 'Thanks for your comment!';
+
+          setTimeout(function() {
+              location.reload();
+          }, 5000); // 5000 milliseconds = 5 seconds  
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          // Handle errors
+        });
+    // }
+  });
+</script>
+
+
+{% schema %}
+  {
+    "name": "Blog Comment",
+    "target": "section",
+    "settings": [
+      {
+        "type": "text",
+        "id": "leavComment",
+        "label": "Leave A Comment",
+        "default": "Leave A Comment"
+      }, {
+        "type": "text",
+        "id": "inputDescription",
+        "label": "Form Description",
+        "default": "Your Email Address Will Not be Published. Required Fields Are Marked*"
+      }
+    ]
+  }
+{% endschema %}
