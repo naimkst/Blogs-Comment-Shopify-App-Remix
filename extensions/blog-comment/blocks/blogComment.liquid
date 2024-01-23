@@ -76,13 +76,47 @@
   .successMessage {
     text-align: center;
   }
+  .parentComment {
+    margin: 10px;
+}
+span.commentDate {
+    display: inline-block;
+    width: 100%;
+    font-size: 12px;
+    color: #858585;
+}
+span.commnetDescription {
+    display: inline-block;
+    width: 100%;
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
+}
+.replyLink {
+      font-size: 13px;
+    display: inline-block;
+    width: 100%;
+}
+.comentList {
+        padding-top: 15px;
+    background: #fff;
+    margin-top: 15px;
+    border-radius: 10px;
+    padding-left: 15px;
+}
+.commnetContent {
+    background: #fff;
+    margin: 10px;
+    border-radius: 10px;
+    padding: 5px 15px;
+}
 </style>
 
 
 <div class="blogContent">
   <form id="commentForm">
     <div class="">
-      <h2 class="">{{ article.comments_count }} Comments</h2>
+      <h2 class=""><span id="commentCount"></span> Comments</h2>
 
       <div id="responseData" class="commentBox">
         {% comment %} <div class="comentList">
@@ -260,23 +294,95 @@
           return formattedDate;
         }
 
+
         function displayComments(comments) {
 
-            function getParentId(id) {
-            var inputElement = document.getElementById('commentId');
-              inputElement.value = id;
-           }
-            var responseDataDiv = document.getElementById('responseData');
-            // Clear existing content before appending new comments
-            responseDataDiv.innerHTML = '';
+        const commentsCount = comments.length;
+        document.getElementById('commentCount').innerText += commentsCount;
 
-            // Iterate through the comments and create HTML elements
+          function buildCommentTree(comments) {
+              const commentMap = new Map();
 
-           
-             comments.forEach(comment => {
-              document.getElementById("responseData").innerHTML += '<div class="comentList"><div class="commnetContent"><div class="titleComnetButton"><h2 class="authorName">'+comment?.name+'</h2><div class="replyButton"><a href="#commentForm" onclick="getCommentId(\''+comment._id+'\')" class="">Reply</a></div></div><span class="commentDate">'+dateTime(comment?.createdAt)+'</span><span class="commnetDescription">'+comment?.comment+'</span></div></div>'
-            });
-        }
+              // Build a map where the key is the comment ID
+              comments.forEach(comment => {
+                  const parentId = comment.parentId || 'root';
+                  if (!commentMap.has(parentId)) {
+                      commentMap.set(parentId, []);
+                  }
+                  commentMap.get(parentId).push(comment);
+              });
+
+              return commentMap;
+          }
+
+          function displayComment(comment) {
+              if (!comment.parentId || comment.parentId === comment._id) {
+                  // If it doesn't have a parentId or parentId is 'root', it's a top-level comment
+                  document.getElementById("responseData").innerHTML += `
+                      <div class="comentList" id="${comment._id}">
+                          <div class="commnetContent">
+                              <h2 class="authorName">${comment.name}</h2>
+                              <span class="commentDate">${dateTime(comment.createdAt)}</span>
+                              <span class="commnetDescription">${comment.comment}</span>
+                              <!-- Your comment HTML structure goes here -->
+                              <a href="#commentForm" class="replyLink" onclick="getCommentId('${comment._id}')">Reply</a>
+                          </div>
+                      </div>`;
+              } else {
+                  // If it has a parentId, it's a reply, find its parent and append it there
+                  const parentContainer = document.getElementById(comment.parentId);
+                  if (parentContainer) {
+                      parentContainer.querySelector('.commnetContent').innerHTML += `
+                          <div class="comentList parentComment" id="${comment._id}">
+                              <div class="commnetContent">
+                                  <h2 class="authorName">${comment.name}</h2>
+                                  <span class="commentDate">${dateTime(comment.createdAt)}</span>
+                                  <span class="commnetDescription">${comment.comment}</span>
+                                  <!-- Your reply HTML structure goes here -->
+                                  <a href="#commentForm" class="replyLink" onclick="getCommentId('${comment.parentId}')">Reply</a>
+                              </div>
+                          </div>`;
+                  }
+              }
+          }
+
+          const commentTree = buildCommentTree(comments);
+
+          // Display the comments recursively
+          function displayCommentsRecursively(parentId) {
+              const childComments = commentTree.get(parentId) || [];
+              childComments.forEach(comment => {
+                  displayComment(comment);
+                  displayCommentsRecursively(comment._id);
+              });
+          }
+
+          // Start displaying comments from the root
+          displayCommentsRecursively('root');
+}
+
+// Assuming commentsData is an array containing your comments data
+const commentsData = [
+    {
+        "_id": "65aac9106e20f07662ea9236",
+        "title": "This is blog title Date time",
+        "blogId": "607489524008",
+        "parentId": "",
+        "name": "Date Time",
+        "email": "date@email.com",
+        "comment": "This is the blog comment please check the response details thanks",
+        "status": "1",
+        "createdAt": "2024-01-19T19:10:08.983Z",
+        "updatedAt": "2024-01-19T19:10:08.983Z",
+        "__v": 0
+    },
+    // ... other comments
+];
+
+//
+
+
+
     </script>
 
 
@@ -333,7 +439,7 @@
 
           setTimeout(function() {
               location.reload();
-          }, 5000); // 5000 milliseconds = 5 seconds  
+          }, 2000); // 5000 milliseconds = 5 seconds  
         })
         .catch(error => {
           console.error('Error:', error);

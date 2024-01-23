@@ -21,8 +21,10 @@ import {
   TabProps,
   Icon,
   InlineStack,
+  Button,
+  Tooltip,
 } from "@shopify/polaris";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { authenticate } from "~/shopify.server";
 import { CheckIcon, DeleteIcon, ViewIcon } from "@shopify/polaris-icons";
 
@@ -35,6 +37,60 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 export const action = async ({ request }: ActionFunctionArgs) => {};
 
 export default function AdditionalPage() {
+  const [comments, setComments] = useState([]);
+
+  const fetchData = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/api/getAllComments"); // Replace with your API endpoint
+      const data = await response.json();
+      console.log(data.data);
+
+      setComments(data.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+  const changeStatus = async (id: string, action: string) => {
+    console.log("accept comment");
+    try {
+      const response = await fetch("http://localhost:3000/api/updateComment", {
+        method: "post",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: id,
+          action: action,
+        }),
+      }); // Replace with your API endpoint
+      const data = await response.json();
+      if (data) {
+        console.log(data?.message);
+        fetchData();
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const deleteComment = async (id: string) => {
+    try {
+      const response = await fetch("http://localhost:3000/api/deleteComment", {
+        method: "put",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: id,
+        }),
+      }); // Replace with your API endpoint
+      const data = await response.json();
+      console.log(data.message);
+      fetchData();
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
   const sleep = (ms: number) =>
     new Promise((resolve) => setTimeout(resolve, ms));
   const [itemStrings, setItemStrings] = useState([
@@ -295,32 +351,80 @@ export default function AdditionalPage() {
     },
   ];
   const resourceName = {
-    singular: "order",
-    plural: "orders",
+    singular: "comment",
+    plural: "comments",
   };
 
-  const { selectedResources, allResourcesSelected, handleSelectionChange } =
-    useIndexResourceState(orders);
+  function dateTime(date: any) {
+    const inputDateString = date ? date : new Date();
+    const inputDate = new Date(inputDateString);
 
-  const rowMarkup = orders.map(
-    ({ id, title, date, name, email, status, action }, index) => (
+    const day = String(inputDate.getDate()).padStart(2, "0");
+    const month = String(inputDate.getMonth() + 1).padStart(2, "0"); // Month is zero-based
+    const year = inputDate.getFullYear();
+
+    const formattedDate = `${day}/${month}/${year}`;
+
+    console.log(formattedDate); // Output: 19/01/2024
+    return formattedDate;
+  }
+
+  const { selectedResources, allResourcesSelected, handleSelectionChange } =
+    useIndexResourceState(comments);
+
+  const rowMarkup = comments.map(
+    ({ _id, title, createdAt, name, email, action, actions }, index) => (
       <IndexTable.Row
-        id={id}
-        key={id}
-        selected={selectedResources.includes(id)}
+        id={_id}
+        key={_id}
+        selected={selectedResources.includes(_id)}
         position={index}
       >
         <IndexTable.Cell>
           <Text variant="bodyMd" fontWeight="bold" as="span">
-            {id}
+            {_id}
           </Text>
         </IndexTable.Cell>
         <IndexTable.Cell>{title}</IndexTable.Cell>
-        <IndexTable.Cell>{date}</IndexTable.Cell>
+        <IndexTable.Cell>{dateTime(createdAt)}</IndexTable.Cell>
         <IndexTable.Cell>{name}</IndexTable.Cell>
         <IndexTable.Cell>{email}</IndexTable.Cell>
-        <IndexTable.Cell>{status}</IndexTable.Cell>
-        <IndexTable.Cell>{action}</IndexTable.Cell>
+        <IndexTable.Cell>
+          {action == "1" && <Badge tone="warning">Pending</Badge>}
+          {action == "2" && <Badge tone="success">Approve</Badge>}
+          {action == "3" && <Badge tone="critical">Reject</Badge>}
+        </IndexTable.Cell>
+        <IndexTable.Cell>
+          {" "}
+          <Box maxWidth="150px">
+            <InlineStack wrap={false} gap="300">
+              <Link onClick={() => changeStatus(_id, "2")}>
+                <Tooltip content="Accept" dismissOnMouseOut key={_id}>
+                  <Icon source={CheckIcon} accessibilityLabel="Accept" />
+                </Tooltip>
+              </Link>
+
+              <Link onClick={() => changeStatus(_id, "3")}>
+                <Tooltip content="Hidden" dismissOnMouseOut key={_id}>
+                  <Icon
+                    source={ViewIcon}
+                    tone="info"
+                    accessibilityLabel="Hidden"
+                  />
+                </Tooltip>
+              </Link>
+              <Link onClick={() => deleteComment(_id)}>
+                <Tooltip content="Reject" dismissOnMouseOut key={_id}>
+                  <Icon
+                    source={DeleteIcon}
+                    tone="critical"
+                    accessibilityLabel="Reject"
+                  />
+                </Tooltip>
+              </Link>
+            </InlineStack>
+          </Box>
+        </IndexTable.Cell>
       </IndexTable.Row>
     )
   );

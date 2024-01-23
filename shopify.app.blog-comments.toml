@@ -2,7 +2,7 @@
 
 name = "blog-comments"
 client_id = "eb8134c5dc030b352b1a09d775fbcaf2"
-application_url = "https://giving-drive-yeah-labour.trycloudflare.com"
+application_url = "https://pressure-monte-fastest-algeria.trycloudflare.com"
 embedded = true
 
 [access_scopes]
@@ -11,9 +11,9 @@ scopes = "write_products"
 
 [auth]
 redirect_urls = [
-  "https://giving-drive-yeah-labour.trycloudflare.com/auth/callback",
-  "https://giving-drive-yeah-labour.trycloudflare.com/auth/shopify/callback",
-  "https://giving-drive-yeah-labour.trycloudflare.com/api/auth/callback"
+  "https://pressure-monte-fastest-algeria.trycloudflare.com/auth/callback",
+  "https://pressure-monte-fastest-algeria.trycloudflare.com/auth/shopify/callback",
+  "https://pressure-monte-fastest-algeria.trycloudflare.com/api/auth/callback"
 ]
 
 [webhooks]
