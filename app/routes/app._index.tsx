@@ -64,6 +64,7 @@ export default function AdditionalPage() {
       const data = await response.json();
       if (data) {
         console.log(data?.message);
+        shopify.toast.show(data.message);
         fetchData();
       }
     } catch (error) {
@@ -85,6 +86,7 @@ export default function AdditionalPage() {
       }); // Replace with your API endpoint
       const data = await response.json();
       console.log(data.message);
+      shopify.toast.show(data.message);
       fetchData();
     } catch (error) {
       console.error("Error fetching data:", error);
