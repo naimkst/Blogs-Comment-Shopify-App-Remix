@@ -187,7 +187,7 @@ span.commnetDescription {
       </div>
 
       <div class="" id="commentForm">
-        <h2 class="">{{ block.settings.leavComment }}</h2>
+        <h2 class="" id="commentTitle">Leave A Comment</h2>
         <p class="content">{{ block.settings.inputDescription }}</p>
 
         <div class="">
@@ -339,7 +339,7 @@ span.commnetDescription {
                                   <span class="commentDate">${dateTime(comment.createdAt)}</span>
                                   <span class="commnetDescription">${comment.comment}</span>
                                   <!-- Your reply HTML structure goes here -->
-                                  <a href="#commentForm" class="replyLink" onclick="getCommentId('${comment.parentId}')">Reply</a>
+                                  <a href="#commentForm" class="replyLink" onclick="parentComment('${comment.parentId}')">Reply</a>
                               </div>
                           </div>`;
                   }
@@ -392,7 +392,14 @@ const commentsData = [
   function getCommentId(id) {
       var inputElement = document.getElementById('commentId');
         inputElement.value = id;
-    }
+        document.getElementById('commentTitle').innerText = "Leave A Comment";
+
+  }
+  function parentComment(id) {
+      var inputElement = document.getElementById('commentId');
+        inputElement.value = id;
+        document.getElementById('commentTitle').innerText = "Leave A Reply";
+  }
 
   document.getElementById('commentForm').addEventListener('submit', function (event) {
     // Prevent the default form submission

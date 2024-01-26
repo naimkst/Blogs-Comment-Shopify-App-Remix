@@ -407,20 +407,20 @@ export default function AdditionalPage() {
               </Link>
 
               <Link onClick={() => changeStatus(_id, "3")}>
-                <Tooltip content="Hidden" dismissOnMouseOut key={_id}>
+                <Tooltip content="Reject" dismissOnMouseOut key={_id}>
                   <Icon
                     source={ViewIcon}
                     tone="info"
-                    accessibilityLabel="Hidden"
+                    accessibilityLabel="Reject"
                   />
                 </Tooltip>
               </Link>
               <Link onClick={() => deleteComment(_id)}>
-                <Tooltip content="Reject" dismissOnMouseOut key={_id}>
+                <Tooltip content="Delete" dismissOnMouseOut key={_id}>
                   <Icon
                     source={DeleteIcon}
                     tone="critical"
-                    accessibilityLabel="Reject"
+                    accessibilityLabel="Delete"
                   />
                 </Tooltip>
               </Link>
