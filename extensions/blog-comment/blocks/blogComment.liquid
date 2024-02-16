@@ -257,7 +257,7 @@ span.commnetDescription {
             var blogIds = document.getElementById('blogId').value;
             console.log("================", blogIds)
 
-            var apiUrl = 'http://localhost:3000/api/getComments';
+            var apiUrl = 'https://comment-node.auradelices.ca/api/getComments';
 
             fetch(apiUrl, {
                 method: 'POST',
@@ -421,7 +421,7 @@ const commentsData = [
       var title = document.getElementById('title').value;
 
       // Define the API endpoint
-      var apiUrl = 'http://localhost:3000/api/createComment';
+      var apiUrl = 'https://comment-node.auradelices.ca/api/createComment';
 
       // Make a POST request using the fetch API
       fetch(apiUrl, {

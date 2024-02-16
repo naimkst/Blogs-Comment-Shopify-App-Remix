@@ -27,6 +27,7 @@ import {
 import { useState, useCallback, useEffect } from "react";
 import { authenticate } from "~/shopify.server";
 import { CheckIcon, DeleteIcon, ViewIcon } from "@shopify/polaris-icons";
+import { API_URL } from "utils/env";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   await authenticate.admin(request);
@@ -41,7 +42,7 @@ export default function AdditionalPage() {
 
   const fetchData = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/getAllComments"); // Replace with your API endpoint
+      const response = await fetch(`${API_URL}/api/getAllComments`); // Replace with your API endpoint
       const data = await response.json();
       console.log(data.data);
 
@@ -53,7 +54,7 @@ export default function AdditionalPage() {
   const changeStatus = async (id: string, action: string) => {
     console.log("accept comment");
     try {
-      const response = await fetch("http://localhost:3000/api/updateComment", {
+      const response = await fetch(`${API_URL}/api/updateComment`, {
         method: "post",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -77,7 +78,7 @@ export default function AdditionalPage() {
 
   const deleteComment = async (id: string) => {
     try {
-      const response = await fetch("http://localhost:3000/api/deleteComment", {
+      const response = await fetch(`${API_URL}/api/deleteComment`, {
         method: "put",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
