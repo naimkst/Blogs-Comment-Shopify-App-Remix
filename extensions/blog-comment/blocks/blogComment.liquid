@@ -120,71 +120,7 @@ span.commnetDescription {
       <h2 class=""><span id="commentCount"></span> Comments</h2>
 
       <div id="responseData" class="commentBox">
-        {% comment %} <div class="comentList">
-          <div class="commnetImage">
-            <img
-              loading="lazy"
-              width="40"
-              height="40"
-              src="https://www.gravatar.com/avatar/{{ comment.email | md5 }}"
-              alt="image"
-              class="">
-          </div>
-          <div class="commnetContent">
-            <div class="titleComnetButton">
-              <h2 class="authorName">{{ comment.author }}</h2>
-              <div class="replyButton">
-                <img
-                  loading="lazy"
-                  width="30"
-                  height="30"
-                  src="{{ 'reply.svg' | asset_url }}"
-                  alt="">
-                <a
-                  href="#commentForm"
-                  onclick="getCommentId({{ comment.id }})"
-                  class="">Reply</a>
-              </div>
-            </div>
-            <span class="commentDate">
-              {{- comment.created_at | date: '%a, %b %d, %Y' -}}
-            </span>
-            <span class="commnetDescription">{{ comment.content }}</span>
-          </div>
-        </div>
-
-        <div class="comentListChild">
-          <div class="commnetImage">
-            <img
-              loading="lazy"
-              width="40"
-              height="40"
-              src="https://www.gravatar.com/avatar/{{ comment.email | md5 }}"
-              alt="image"
-              class="">
-          </div>
-          <div class="commnetContent">
-            <div class="titleComnetButton">
-              <h2 class="authorName">{{ comment.author }}</h2>
-              <div class="replyButton">
-                <img
-                  loading="lazy"
-                  width="30"
-                  height="30"
-                  src="{{ 'reply.svg' | asset_url }}"
-                  alt="">
-                <a
-                  href="#commentForm"
-                  onclick="getCommentId({{ comment.id }})"
-                  class="">Reply</a>
-              </div>
-            </div>
-            <span class="commentDate">
-              {{- comment.created_at | date: '%a, %b %d, %Y' -}}
-            </span>
-            <span class="commnetDescription">{{ comment.content }}</span>
-          </div>
-        </div> {% endcomment %}
+       
       </div>
 
       <div class="" id="commentForm">
