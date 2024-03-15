@@ -23,6 +23,10 @@ import {
   InlineStack,
   Button,
   Tooltip,
+  Frame,
+  Modal,
+  LegacyStack,
+  TextContainer,
 } from "@shopify/polaris";
 import { useState, useCallback, useEffect } from "react";
 import { authenticate } from "~/shopify.server";
@@ -39,6 +43,15 @@ export const action = async ({ request }: ActionFunctionArgs) => {};
 
 export default function AdditionalPage() {
   const [comments, setComments] = useState([]);
+  const [active, setActive] = useState(true);
+  const [modalItem, setModalItem] = useState("");
+  // const toggleModal = useCallback(() => setActive((active) => !active), []);
+  const activeModal = () => {
+    setActive(true);
+  };
+  const desableModal = () => {
+    setActive(false);
+  };
 
   const fetchData = async () => {
     try {
@@ -376,7 +389,10 @@ export default function AdditionalPage() {
     useIndexResourceState(comments);
 
   const rowMarkup = comments.map(
-    ({ _id, title, createdAt, name, email, action, actions }, index) => (
+    (
+      { _id, title, createdAt, name, email, action, actions, comment }: any,
+      index
+    ) => (
       <IndexTable.Row
         id={_id}
         key={_id}
@@ -385,10 +401,42 @@ export default function AdditionalPage() {
       >
         <IndexTable.Cell>
           <Text variant="bodyMd" fontWeight="bold" as="span">
-            {_id}
+            {title}
           </Text>
         </IndexTable.Cell>
-        <IndexTable.Cell>{title}</IndexTable.Cell>
+        <IndexTable.Cell>
+          {String(comment?.substring(0, 30))} {"   "}
+          <Link
+            onClick={() => {
+              setModalItem(_id);
+              activeModal();
+            }}
+          >
+            View More
+          </Link>
+          {modalItem == _id && (
+            <Modal
+              open={active}
+              onClose={() => {
+                desableModal();
+              }}
+              title="Comment Details"
+              primaryAction={{
+                content: "Close",
+                onAction: () => {
+                  desableModal();
+                  setModalItem("");
+                },
+              }}
+            >
+              <Modal.Section>
+                <Box>
+                  <p>{comment}</p>
+                </Box>
+              </Modal.Section>
+            </Modal>
+          )}
+        </IndexTable.Cell>
         <IndexTable.Cell>{dateTime(createdAt)}</IndexTable.Cell>
         <IndexTable.Cell>{name}</IndexTable.Cell>
         <IndexTable.Cell>{email}</IndexTable.Cell>
@@ -467,8 +515,8 @@ export default function AdditionalPage() {
         }
         onSelectionChange={handleSelectionChange}
         headings={[
-          { title: "ID" },
           { title: "Title" },
+          { title: "Description" },
           { title: "Date" },
           { title: "Name" },
           { title: "Email" },
